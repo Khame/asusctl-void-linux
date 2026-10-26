@@ -138,3 +138,22 @@ This repository contains **only packaging templates** (template + files), not th
 
 - **Khame** — `lukasz.linhard@gmail.com`
 - Assisted by **AI**
+
+## 📋 Tested on
+
+Hardware: **ASUS ROG Strix G513QM** (1.0)
+- CPU: AMD Ryzen 9 5900HX (16 cores)
+- GPU: NVIDIA GeForce RTX 3060 Mobile / Max-Q (Discrete) + AMD Radeon Vega Integrated
+- Display: 2560x1440 @ 165 Hz, 16-inch
+- BIOS: 1.0
+- Kernel: Linux 7.3.0_1
+- Desktop: KDE Plasma 6.7.5
+- Window Manager: KWin (Wayland)
+- Packages: 1127 (xbps)
+- Locale: pl_PL.UTF-8
+
+This configuration represents the target hardware for `asusctl` - ASUS ROG laptops with Armoury-supported hardware. The `asus-armoury` kernel module (available in 6.19+) enables full GPU control features.
+
+## License
+
+This repository's authored material is licensed under **MIT**. Upstream software (`asusctl`) is governed by the **MPL-2.0** license.
