@@ -2,6 +2,12 @@
 
 Packaging of [asusctl](https://github.com/OpenGamingCollective/asusctl) for Void Linux: the `asusd` daemon, command-line tools and an optional KDE Plasma widget. Services run under the native runit supervision tree — no systemd units are installed.
 
+## Why this exists
+
+I built this package for my own laptop: I wanted asusctl on Void Linux, which uses runit instead of systemd, and nothing packaged it that way. It has been running here since then, so I shared it in case someone else finds it useful.
+
+This is a personal project, not an official Void package, and comes with no support commitment. Bug reports and patches are welcome.
+
 ## Installation
 
 ### Option 1: Signed XBPS repository (recommended)
@@ -79,6 +85,13 @@ Add the widget through Plasma's widget picker after installation. It requires KD
 - **Kernel:** 6.19 or newer (for `asus-armoury` driver support)
 - **Architecture:** `x86_64`
 - **Init:** runit (systemd is not supported)
+
+## Tested on
+
+- **ASUS ROG Strix G513QM** — AMD Ryzen 9 5900HX, hybrid graphics (Radeon Vega iGPU + NVIDIA GeForce RTX 3060 Mobile / Max-Q), 16 GB RAM; Void Linux `x86_64` (glibc), kernel 7.3, XBPS 0.60.7, runit, KDE Plasma 6.7.5 on Wayland. `asusd`, `asusctl` and `rog-control-center` are in daily use.
+- **Clean Void `x86_64` LXC container** — installation from the signed repository, RSA signature verification and the installed file layout. It has no ASUS WMI device, so `asusd` exits with `MissingFunction("asus-nb-wmi not found")`; that is expected and not a packaging defect.
+
+Only `x86_64` with glibc is built and published; musl is untested.
 
 ## Repository layout
 
