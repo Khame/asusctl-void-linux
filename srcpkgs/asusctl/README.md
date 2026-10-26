@@ -7,17 +7,35 @@ Packaging for [asusctl](https://github.com/OpenGamingCollective/asusctl), includ
 This repository provides **two installable package variants** via Void subpackages:
 
 ### `asusctl` (bez widgetu Plasma - domyślny)
-- **Mniejsza paczka** – tylko daemon `asusd` i narzędzia CLI
-- **Działa na wszystkich środowiskach** – GNOME, XFCE, sway, itp.
-- **Brak zależności KDE** – `depends="dbus eudec"`
-- Instaluj: `sudo xbps-install asusctl`
+Mniejsza paczka – tylko daemon `asusd` i narzędzia CLI, działa na wszystkich systemach.
 
 ### `asusctl-plasma` (z widgetem Plasma)
-- **Dodatkowa subpakejka** – zawiera widget KDE Plasma
-- **Wymaga KDE** – `depends="plasma-workspace kirigami2"`
-- Instaluj równolegle: `sudo xbps-install asusctl asusctl-plasma`
+Dodatkowa subpakejka – zawiera widget KDE Plasma, wymaga środowiska KDE.
 
-> **Uwaga:** Domyślnie paczka `asusctl` nie zawiera widgetu Plasma, aby była lżejsza i działała na każdym systemie. Widget można dodać instalując subpakejkę `asusctl-plasma`.
+## Szybka instalacja (jedna komenda)
+
+### Opcja 1: Z Release'ów (najszybsza - nie trzeba dodawać repo)
+
+```sh
+# Importuj klucz podpisujący repozytorium (robisz raz)
+sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -o /var/db/xbps/keys/Khame-void-repo.pem'
+
+# Dodaj repozytorium Khame
+sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
+
+# Zainstaluj paczkę z Release'ów (bez budowania!)
+sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
+```
+
+Po tym asusctl jest zainstalowany i gotowy do użycia.
+
+### Opcja 2: Z dodanego repozytorium
+
+```sh
+# Po wykonaniu kroków z Opcji 1:
+sudo xbps-install asusctl
+# Lub z widgetem: sudo xbps-install asusctl asusctl-plasma
+```
 
 ## Requirements
 
@@ -30,16 +48,18 @@ This repository provides **two installable package variants** via Void subpackag
 The published Khame XBPS repository provides the binary package for `x86_64`. First add the repository:
 
 ```sh
-git clone --depth=1 https://github.com/Khame/asusctl-void-linux.git
-cd asusctl-void-linux
-# To install binary from repo (after repo is set up):
-sudo xbps-install asusctl
+# Importuj klucz podpisujący repozytorium (robisz raz)
+sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -o /var/db/xbps/keys/Khame-void-repo.pem'
+
+# Dodaj repozytorium Khame
+sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
 ```
 
-> **Wariant z widgetem Plasma:**
-> ```sh
-> sudo xbps-install asusctl asusctl-plasma
-> ```
+Then install:
+
+```sh
+sudo xbps-install asusctl
+```
 
 Or install from GitHub Releases (no need to add repository manually):
 
@@ -55,29 +75,7 @@ A signed binary package is available as a GitHub Release asset:
 - **Package:** `asusctl-6.5.0.git20261024_1.x86_64.xbps` (15.8 MB)
 - **Download:** https://github.com/Khame/asusctl-void-linux/releases/tag/v6.5.0
 
-The repository is **RSA-signed**. Install the public key first:
-
-```sh
-sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -o /var/db/xbps/keys/Khame-void-repo.pem'
-```
-
-Then add the repository and install:
-
-```sh
-sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
-sudo xbps-install -S
-sudo xbps-install asusctl
-```
-
-## GitHub Actions CI
-
-This repository does not include automatic GitHub Actions CI because the Personal Access Token used for deployment lacks the `workflow` scope required to create/modify `.github/workflows/` files. To enable CI:
-
-1. Generate a new token at GitHub with `workflow` scope
-2. Add it as a repository secret `GH_TOKEN`
-3. The workflow will auto-bootstrap `void-packages`, build `asusctl` with `xbps-src`, and run verification
-
-For now, use the manual installation methods above.
+The repository is **RSA-signed**. First install the public key following the instructions above.
 
 ## Enable the system service
 
@@ -127,10 +125,7 @@ This repository contains **only packaging templates** (template + files), not th
 3. Build and install:
    ```sh
    ./xbps-src pkg asusctl
-   # Lub zbuduj subpakejkę widgetu:
-   ./xbps-src pkg asusctl-plasma
    sudo xbps-install --repository=hostdir/binpkgs asusctl
-   # Lub z widgetem: sudo xbps-install --repository=hostdir/binpkgs 'asusctl asusctl-plasma'
    ```
 
 ## Upstream
