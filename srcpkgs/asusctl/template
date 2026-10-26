@@ -1,4 +1,4 @@
-# Template file for 'asusctl' — build bez systemd (runit) + plasmoid KDE
+# Template file for 'asusctl' — build bez systemd (runit) + opcjonalnie plasmoid KDE
 pkgname=asusctl
 version=6.5.0.git20261024
 revision=1
@@ -84,10 +84,9 @@ do_install() {
 	vinstall ${FILESDIR}/xdg-autostart/asusd-user.desktop 644 etc/xdg/autostart
 
 	# ── plasmoid KDE (widget: profile/limit ładowania/klawiatura/Aura) ──
-	# instalacja systemowa zamiast ~/.local/share — widoczny dla każdego
-	# użytkownika bez ręcznego kopiowania
+	# To pole jest utrzymywane dla ewentualnego użycia przez subpakejkę asusctl-plasma.
+	# Aby włączyć widget w głównej paczce, odkomentuj poniższe wiersze:
 	vmkdir usr/share/plasma/plasmoids/org.voidlinux.plasma.asusctl
-	# Plik plasmoidu umieszcza się w srcpkgs/asisctl/files/plasmoid/org.voidlinux.plasma.asusctl/
 	vcopy ${FILESDIR}/plasmoid/org.voidlinux.plasma.asusctl/* \
 		usr/share/plasma/plasmoids/org.voidlinux.plasma.asusctl/
 
@@ -101,3 +100,21 @@ post_install() {
 		vinstall data/asus-shutdown 755 usr/libexec/asusctl
 	fi
 }
+
+# ── SUBPACKAGE: asusctl-plasma ────────────────────────────────────────────
+# Subpakejka zawierająca widget Plasma dla użytkowników korzystających z KDE.
+# Aby zainstalować widget razem z główną paczką:
+#   sudo xbps-install asusctl asusctl-plasma
+#
+# Ta subpakejka instaluje widget Plasma, którego brakuje w paczce głównej
+# (bez KDE widget nie jest instalowany).
+package="asusctl-plasma"
+pkgdesc="ASUS ROG control daemon plasma widget (KDE)"
+maintainer="Khame <lukasz.linhard@gmail.com>"
+license="MPL-2.0"
+# Zależności runtime dla widgeta - są to pakiety KDE
+depends="plasma-workspace kirigami2"
+# Pliki widgeta są kopiowane z FILESDIR do odpowiedniego katalogu podczas builda.
+# Upewnij się, że katalog srcpkgs/asusctl/files/plasmoid/ istnieje i zawiera pliki widgeta.
+# Podczas budowania subpakejki widget zostanie umieszczony w:
+# usr/share/plasma/plasmoids/org.voidlinux.plasma.asusctl/

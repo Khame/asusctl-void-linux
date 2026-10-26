@@ -2,6 +2,23 @@
 
 Packaging for [asusctl](https://github.com/OpenGamingCollective/asusctl), including the `asusd` system daemon, command-line tools, and a KDE Plasma widget. This package uses Void's runit service management; it does not install a systemd service.
 
+## 📦 Two package variants
+
+This repository provides **two installable package variants** via Void subpackages:
+
+### `asusctl` (bez widgetu Plasma - domyślny)
+- **Mniejsza paczka** – tylko daemon `asusd` i narzędzia CLI
+- **Działa na wszystkich środowiskach** – GNOME, XFCE, sway, itp.
+- **Brak zależności KDE** – `depends="dbus eudec"`
+- Instaluj: `sudo xbps-install asusctl`
+
+### `asusctl-plasma` (z widgetem Plasma)
+- **Dodatkowa subpakejka** – zawiera widget KDE Plasma
+- **Wymaga KDE** – `depends="plasma-workspace kirigami2"`
+- Instaluj równolegle: `sudo xbps-install asusctl asusctl-plasma`
+
+> **Uwaga:** Domyślnie paczka `asusctl` nie zawiera widgetu Plasma, aby była lżejsza i działała na każdym systemie. Widget można dodać instalując subpakejkę `asusctl-plasma`.
+
 ## Requirements
 
 - **Kernel:** 6.19 or newer (for `asus-armoury` driver support)
@@ -18,6 +35,11 @@ cd asusctl-void-linux
 # To install binary from repo (after repo is set up):
 sudo xbps-install asusctl
 ```
+
+> **Wariant z widgetem Plasma:**
+> ```sh
+> sudo xbps-install asusctl asusctl-plasma
+> ```
 
 Or install from GitHub Releases (no need to add repository manually):
 
@@ -55,7 +77,7 @@ This repository does not include automatic GitHub Actions CI because the Persona
 2. Add it as a repository secret `GH_TOKEN`
 3. The workflow will auto-bootstrap `void-packages`, build `asusctl` with `xbps-src`, and run verification
 
-For now, use the manual `update-asusctl.sh` script or install from Release assets.
+For now, use the manual installation methods above.
 
 ## Enable the system service
 
@@ -71,7 +93,19 @@ If `/var/service/asusd` already exists, skip the `ln -s` command. The package al
 
 ## KDE Plasma widget
 
-The package includes the `org.voidlinux.plasma.asusctl` widget. It requires Plasma 6 and its runtime dependencies. After installing the package, add **ASUS Control (asusctl)** to the panel or desktop through Plasma's widget picker. The `asusd` service must be running for controls to work.
+The plasma widget is **not included** in the main `asusctl` package by default (zeby paczka była lżejsza i działała na każdym systemie). Aby go włączyć, zainstaluj subpakejkę:
+
+```sh
+sudo xbps-install asusctl asusctl-plasma
+```
+
+Po instalacji widgetu dodaj **ASUS Control (asusctl)** do panelu lub pulpitu przez wyłącznik widgetów w Plasma 6. Widget udostępnia:
+- Sterowanie profilami oświetlenia Aura
+- Limit ładowania baterii
+- Sterowanie klawiaturą
+- Włącz/Wyłącz Aura
+
+> **Bez widgetu** paczka `asusctl` nadal pełni funkcję: daemon `asusd` działa w tle, a narzędzia CLI (`asusctl`, `asusd-user`) są dostępne z wiersza poleceń na każdym środowisku.
 
 ## Build from source
 
@@ -93,7 +127,10 @@ This repository contains **only packaging templates** (template + files), not th
 3. Build and install:
    ```sh
    ./xbps-src pkg asusctl
+   # Lub zbuduj subpakejkę widgetu:
+   ./xbps-src pkg asusctl-plasma
    sudo xbps-install --repository=hostdir/binpkgs asusctl
+   # Lub z widgetem: sudo xbps-install --repository=hostdir/binpkgs 'asusctl asusctl-plasma'
    ```
 
 ## Upstream

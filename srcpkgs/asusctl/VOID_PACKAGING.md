@@ -2,6 +2,46 @@
 
 This repository contains **Void Linux `xbps-src` packaging** for `asusctl` maintained by **Khame + AI**.
 
+## 📦 Two package variants (subpackages)
+
+This packaging supports **two installable variants** using Void Linux subpackages:
+
+### Main package: `asusctl` (bez widgetu Plasma)
+| Description | Install |
+|---------|---------|
+| `asusctl` | ASUS ROG control daemon, CLI and optional KDE widget (runit, no systemd) | [README](README.md) |
+
+**Charakterystyka:**
+- Mniejszy rozmiar paczki (brak plików QML/widgetu)
+- Działa na wszystkich środowiskach graficznych (GNOME, XFCE, sway itp.)
+- Brak zależności KDE w `depends` (tylko `dbus eudec`)
+- `optdepends` zawiera informację o widgetze Plasma jako opcjonalny
+
+**Budowa:**
+```sh
+./xbps-src pkg asusctl
+#lub
+sudo xbps-install asusctl
+```
+
+### Subpackage: `asusctl-plasma` (z widgetem Plasma)
+| Description | Install |
+|---------|---------|
+| `asusctl-plasma` | Widget ASUS ROG control daemon Plasma (KDE) | - |
+
+**Charakterystyka:**
+- Zawiera widget QML, ikony i integrację z panelem KDE
+- Wymaga środowiska KDE: `plasma-workspace`, `kirigami2`
+- Instaluje się równolegle z główną paczką:
+  ```sh
+  sudo xbps-install asusctl asusctl-plasma
+  ```
+
+**Budowa subpakejki:**
+```sh
+./xbps-src pkg asusctl-plasma
+```
+
 ## Package
 
 | Description | Install |
@@ -31,15 +71,21 @@ This repository contains **only Void Linux packaging** (template + service files
    cp -a /tmp/khame-asusctl/srcpkgs/asusctl /path/to/void-packages/srcpkgs/
    ```
 
-3. **Build the package:**
+3. **Build the main package (bez widgetu):**
    ```sh
    ./xbps-src pkg asusctl
    ```
 
-4. **Verify and install:**
+4. **Build subpackage z widgetem (opcjonalne):**
+   ```sh
+   ./xbps-src pkg asusctl-plasma
+   ```
+
+5. **Verify and install:**
    ```sh
    ./xbps-src check asusctl
    sudo xbps-install --repository=hostdir/binpkgs asusctl
+   # Lub z widgetem: sudo xbps-install asusctl asusctl-plasma
    ```
 
 ## Requirements
@@ -48,6 +94,8 @@ This repository contains **only Void Linux packaging** (template + service files
 - **Architecture:** x86_64
 - **Init:** runit (no systemd)
 - **Dependencies:** dbus, eudev (runtime); pkg-config, rust, cargo, clang, cmake, gettext, git (build)
+
+**Optdepends:** `plasma-workspace: KDE widget do sterowania asusd`, `kirigami2: KDE widget do sterowania asusd`
 
 ## Author / Packager
 
@@ -74,3 +122,12 @@ sudo xbps-install asusctl
 ```
 
 **Note:** GitHub Actions CI is not automatically enabled because the deployment token lacks the `workflow` scope. To add CI, generate a token with `workflow` scope and configure it as a repository secret `GH_TOKEN`.
+
+## Subpackage maintainance
+
+Aby dodać lub zmodyfikować subpakejkę `asusctl-plasma`:
+
+1. Edytuj plik `srcpkgs/asusctl/template`
+2. Zmień zmienną `package="asusctl-plasma"` i jej zależności
+3. Upewnij się, że pliki widgeta znajdują się w `srcpkgs/asusctl/files/plasmoid/org.voidlinux.plasma.asusctl/`
+4. Przetestuj budowę: `./xbps-src pkg asusctl-plasma`
