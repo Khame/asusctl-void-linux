@@ -6,38 +6,38 @@ This repository contains **Void Linux `xbps-src` packaging** for `asusctl` maint
 
 This packaging supports **two installable variants** using Void Linux subpackages:
 
-### Main package: `asusctl` (bez widgetu Plasma)
+### Main package: `asusctl` (without Plasma widget)
 | Description | Install |
 |---------|---------|
 | `asusctl` | ASUS ROG control daemon, CLI and optional KDE widget (runit, no systemd) | [README](README.md) |
 
-**Charakterystyka:**
-- Mniejszy rozmiar paczki (brak plików QML/widgetu)
-- Działa na wszystkich środowiskach graficznych (GNOME, XFCE, sway itp.)
-- Brak zależności KDE w `depends` (tylko `dbus eudec`)
-- `optdepends` zawiera informację o widgetze Plasma jako opcjonalny
+**Characteristics:**
+- Smaller package size (no QML/widget files)
+- Works on all graphical environments (GNOME, XFCE, sway, etc.)
+- No KDE dependencies in `depends` (only `dbus eudec`)
+- `optdepends` contains information about the Plasma widget as optional
 
-**Budowa:**
+**Building:**
 ```sh
 ./xbps-src pkg asusctl
-#lub
+# or
 sudo xbps-install asusctl
 ```
 
-### Subpackage: `asusctl-plasma` (z widgetem Plasma)
+### Subpackage: `asusctl-plasma` (with Plasma widget)
 | Description | Install |
 |---------|---------|
-| `asusctl-plasma` | Widget ASUS ROG control daemon Plasma (KDE) | - |
+| `asusctl-plasma` | ASUS ROG control daemon Plasma (KDE) | - |
 
-**Charakterystyka:**
-- Zawiera widget QML, ikony i integrację z panelem KDE
-- Wymaga środowiska KDE: `plasma-workspace`, `kirigami2`
-- Instaluje się równolegle z główną paczką:
+**Characteristics:**
+- Contains QML widget, icons and KDE panel integration
+- Requires KDE environment: `plasma-workspace`, `kirigami2`
+- Installs in parallel with the main package:
   ```sh
   sudo xbps-install asusctl asusctl-plasma
   ```
 
-**Budowa subpakejki:**
+**Building the subpackage:**
 ```sh
 ./xbps-src pkg asusctl-plasma
 ```
@@ -71,12 +71,12 @@ This repository contains **only Void Linux packaging** (template + service files
    cp -a /tmp/khame-asusctl/srcpkgs/asusctl /path/to/void-packages/srcpkgs/
    ```
 
-3. **Build the main package (bez widgetu):**
+3. **Build the main package (without widget):**
    ```sh
    ./xbps-src pkg asusctl
    ```
 
-4. **Build subpackage z widgetem (opcjonalne):**
+4. **Build subpackage with widget (optional):**
    ```sh
    ./xbps-src pkg asusctl-plasma
    ```
@@ -85,7 +85,7 @@ This repository contains **only Void Linux packaging** (template + service files
    ```sh
    ./xbps-src check asusctl
    sudo xbps-install --repository=hostdir/binpkgs asusctl
-   # Lub z widgetem: sudo xbps-install asusctl asusctl-plasma
+   # or with widget: sudo xbps-install asusctl asusctl-plasma
    ```
 
 ## Requirements
@@ -95,7 +95,7 @@ This repository contains **only Void Linux packaging** (template + service files
 - **Init:** runit (no systemd)
 - **Dependencies:** dbus, eudev (runtime); pkg-config, rust, cargo, clang, cmake, gettext, git (build)
 
-**Optdepends:** `plasma-workspace: KDE widget do sterowania asusd`, `kirigami2: KDE widget do sterowania asusd`
+**Optdepends:** `plasma-workspace: KDE widget for asusd control`, `kirigami2: KDE widget for asusd control`
 
 ## Author / Packager
 
@@ -125,9 +125,9 @@ sudo xbps-install asusctl
 
 ## Subpackage maintainance
 
-Aby dodać lub zmodyfikować subpakejkę `asusctl-plasma`:
+To add or modify the `asusctl-plasma` subpackage:
 
-1. Edytuj plik `srcpkgs/asusctl/template`
-2. Zmień zmienną `package="asusctl-plasma"` i jej zależności
-3. Upewnij się, że pliki widgeta znajdują się w `srcpkgs/asusctl/files/plasmoid/org.voidlinux.plasma.asusctl/`
-4. Przetestuj budowę: `./xbps-src pkg asusctl-plasma`
+1. Edit the file `srcpkgs/asusctl/template`
+2. Change the `package="asusctl-plasma"` variable and its dependencies
+3. Ensure widget files are located in `srcpkgs/asusctl/files/plasmoid/org.voidlinux.plasma.asusctl/`
+4. Test the build: `./xbps-src pkg asusctl-plasma`
