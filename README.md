@@ -7,26 +7,28 @@ Packaging of [asusctl](https://github.com/OpenGamingCollective/asusctl) for Void
 ### Option 1: Signed XBPS repository (recommended)
 
 ```sh
-# 1. Import the repository signing key (once)
-sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -o /var/db/xbps/keys/Khame-void-repo.pem'
-
-# 2. Add the repository
+# 1. Add the repository
 sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
 
+# 2. Sync the index; xbps asks to import the repository key — answer Y
+sudo xbps-install -S
+
 # 3. Install
-sudo xbps-install -S asusctl
+sudo xbps-install asusctl
 ```
+
+The repository key is embedded in the signed index and imported by `xbps` automatically; it is stored as `/var/db/xbps/keys/35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66.plist`. The public key is also published as [`Khame-void-repo.pub`](https://khame.github.io/void-packages/Khame-void-repo.pub) if you want to verify it manually.
 
 Updates arrive through the usual `sudo xbps-install -Su`. Only `x86_64` packages are published.
 
 ### Option 2: GitHub Release asset
 
 ```sh
-# Import the signing key first (same key as Option 1, step 1), then:
+# Import the repository key first (Option 1, steps 1-2), then:
 sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
 ```
 
-Suitable for a one-off install without configuring a repository. Updates are manual.
+Suitable for a one-off install of a specific build. Updates are manual.
 
 ### Option 3: Build from source
 

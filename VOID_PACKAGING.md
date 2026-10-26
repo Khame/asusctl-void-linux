@@ -70,7 +70,7 @@ sudo sv down asusd
 7. Commit and push `Khame/void-packages`. GitHub Pages serves the `docs/` directory of `main`, so the repository is published at `https://khame.github.io/void-packages/`.
 8. Attach the same `.xbps` to a GitHub Release in this repository and update the version references in `README.md`.
 
-Packages are signed with the Khame repository RSA key. The private key is kept outside both repositories, for example at `~/.config/Khame-void-repo-private.pem` with mode `600`. The public key must be copied to `docs/Khame-void-repo.pub`; users import it as `/var/db/xbps/keys/Khame-void-repo.pem` before installing. Unsigned installation (`allow-unsigned`) is never supported.
+Packages are signed with the Khame repository RSA key. The private key is kept outside both repositories, for example at `~/.config/Khame-void-repo-private.pem` with mode `600`. The public key is copied to `docs/Khame-void-repo.pub` for manual verification, and `xbps-rindex -s` embeds it in the repository index. Users do not place a `.pem` in `/var/db/xbps/keys/` manually: `xbps` imports the key from the index on the first `xbps-install -S` and stores it as `<fingerprint>.plist` (currently `35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66.plist`). Unsigned installation (`allow-unsigned`) is never supported.
 
 The repository index (`x86_64-repodata`) carries no separate signature: `xbps` verifies each package against the imported public key. Only the `x86_64` architecture is published.
 
