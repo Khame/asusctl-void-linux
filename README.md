@@ -66,11 +66,13 @@ Skip `ln -s` if `/var/service/asusd` already exists. The package creates `/var/l
 ## What the package installs
 
 - `asusd` — system daemon (runit service `asusd`, logging to `/var/log/asusd`)
-- `asusctl`, `asusd-user`, `asus-shutdown`, `rog-control-center` — CLI and GUI tools
-- udev rules, D-Bus policy, keyboard layouts and notification icons
+- `asusctl`, `asusd-user`, `rog-control-center` — CLI and GUI tools
+- D-Bus policy, keyboard layouts and notification icons
 - KDE Plasma widget `org.voidlinux.plasma.asusctl` (Aura lighting, battery charge limit, keyboard and Aura on/off control)
 
-Add the widget through Plasma's widget picker after installation. It is optional: on GNOME, XFCE, sway or a plain console the daemon and CLI tools work on their own.
+The upstream `asus-shutdown` helper and its udev rule are not installed: both depend on systemd and do nothing under runit.
+
+Add the widget through Plasma's widget picker after installation. It requires KDE Plasma 6: the package's `INSTALL.msg` lists `plasma-workspace`, `kf6-kirigami` and `plasma5support`. The widget is optional: on GNOME, XFCE, sway or a plain console the daemon and CLI tools work on their own.
 
 ## Requirements
 

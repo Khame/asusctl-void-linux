@@ -19,10 +19,11 @@ For user-facing installation instructions see [README.md](README.md).
 
 - `build_style=gnu-makefile` with `make_build_target="all"`.
 - Upstream `make install` is not used, because it installs systemd units. All files are placed explicitly in `do_install`.
-- `post_patch` removes the `systemctl` callout from `data/asusd.rules`; runit has no such command and udev logs errors on every hotplug otherwise.
-- runit replaces systemd: `/etc/sv/asusd` and `/etc/sv/asusd/log` are installed from `files/`.
-- The Plasma widget ships inside the main package. `plasma-workspace` and `kirigami2` are `optdepends`, so non-KDE systems do not pull them in.
-- `vmkdir var/log/asusd` in `do_install` gives `svlogd` a writable directory.
+- The version is a git snapshot: `version=6.5.0.20261024` plus `_commit=13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`. `distfiles` uses `${_commit}` and no `wrksrc` is needed; `xbps-src` renames the extracted top-level directory to `$wrksrc` automatically.
+- `data/asusd.rules` is not installed. Its only actions are `TAG+="systemd"` and `ENV{SYSTEMD_WANTS}+="asusd.service asus-shutdown.service"`; eudev ignores both, and `asusd` is started by runit.
+- `asus-shutdown` is not installed. It blocks on a `PrepareForShutdown` signal from logind and calls `systemctl`; runit's `/usr/bin/shutdown` never sends that signal, so the helper would never apply its deferred GPU settings.
+- runit replaces systemd: `/etc/sv/asusd` and `/etc/sv/asusd/log` are installed from `files/`. The logger creates `/var/log/asusd` itself because empty directories do not survive package creation.
+- The Plasma widget ships inside the main package. Runtime requirements are in `srcpkgs/asusctl/INSTALL.msg`, not in `optdepends`: `xbps-src` does not support an `optdepends` variable and silently ignores it.
 
 Build dependencies: `pkg-config rust cargo clang cmake gettext git`, plus `eudev-libudev-devel dbus-devel pcre2-devel libxkbcommon-devel libzstd-devel gtk+3-devel`. Runtime dependencies are `dbus eudev`.
 
@@ -52,10 +53,11 @@ sudo sv down asusd
 ## Releasing a new version
 
 1. Check the upstream version and compare it with `version=` in the template. Do nothing if it is unchanged.
-2. Update `version=`, point `distfiles=` at the new commit or tag archive URL and let `xbps-src` compute the new `checksum=`.
+2. Update `version=`, `_commit=`, point `distfiles=` at the new commit or tag archive URL and let `xbps-src` compute the new `checksum=`.
 3. Increase `revision=` for template-only changes that keep the same upstream version.
-4. Build, install and test locally.
-5. Sign the package, rebuild the index and sign the repository:
+4. Run `xlint srcpkgs/asusctl/template` and fix every warning before building.
+5. Build, install and test locally. After replacing a run script, restart the service and its logger separately: `sudo sv restart asusd` does not restart `asusd/log`.
+6. Sign the package, rebuild the index and sign the repository:
 
    ```sh
    xbps-rindex -S --privkey="$HOME/.config/Khame-void-repo-private.pem" \
@@ -66,9 +68,9 @@ sudo sv down asusd
      --signedby="Khame <lukasz.linhard@gmail.com>" docs
    ```
 
-6. Remove the previous package version from `docs/` so the index lists one version only.
-7. Commit and push `Khame/void-packages`. GitHub Pages serves the `docs/` directory of `main`, so the repository is published at `https://khame.github.io/void-packages/`.
-8. Attach the same `.xbps` to a GitHub Release in this repository and update the version references in `README.md`.
+7. Remove the previous package version from `docs/` so the index lists one version only.
+8. Commit and push `Khame/void-packages`. GitHub Pages serves the `docs/` directory of `main`, so the repository is published at `https://khame.github.io/void-packages/`.
+9. Attach the same `.xbps` to a GitHub Release in this repository and update the version references in `README.md`.
 
 Packages are signed with the Khame repository RSA key. The private key is kept outside both repositories, for example at `~/.config/Khame-void-repo-private.pem` with mode `600`. The public key is copied to `docs/Khame-void-repo.pub` for manual verification, and `xbps-rindex -s` embeds it in the repository index. Users do not place a `.pem` in `/var/db/xbps/keys/` manually: `xbps` imports the key from the index on the first `xbps-install -S` and stores it as `<fingerprint>.plist` (currently `35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66.plist`). Unsigned installation (`allow-unsigned`) is never supported.
 
