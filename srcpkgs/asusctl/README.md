@@ -16,25 +16,25 @@ sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -
 sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
 
 # 3. Install from repository (now you can use: sudo xbps-install asusctl)
-# You can also update later with: sudo xbps-install -Sudo xbps-install asusctl
+# You can also update later with: sudo xbps-install -Su
 # Or with widget: sudo xbps-install asusctl asusctl-plasma
 ```
 
-**Zaleta:** Po konfiguracji, instalacja jest identyczna jak innych pakietów z repozytorium Void. Możesz aktualizować paczkę komendą `sudo xbps-install -Su`.
+**Advantage:** After configuration, installation is identical to other packages from the Void repository. You can update the package with the command `sudo xbps-install -Su`.
 
 ### Option 2: From GitHub Releases (single command, no repo setup)
 
 ```sh
-# Install the binary package directly from Release (jedna komenda, nie trzeba dodawania repo)
+# Install the binary package directly from Release (one command, no need to add repo)
 sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
 ```
 
-**Zaleta:** Nie wymaga reconfigurowania repozytorium systemowego. Wygoda przy jednorazowej instalacji.
+**Advantage:** Does not require reconfiguring the system repository. Convenience for one-time installation.
 
 ### Option 3: From source (using void-packages)
 
 ```sh
-# Build and install from source (pełna budowa z void-packages)
+# Build and install from source (full build from void-packages)
 git clone --depth=1 https://github.com/void-linux/void-packages.git
 cd void-packages
 ./xbps-src binary-bootstrap
@@ -46,7 +46,7 @@ cp -a /tmp/khame-asusctl/srcpkgs/asusctl /path/to/void-packages/srcpkgs/
 sudo xbps-install --repository=hostdir/binpkgs asusctl
 ```
 
-**Zaleta:** Masz pełną kontrolę nad procesem budowy i możesz modyfikować szablon. Wadą: dłuższy czas instalacji i konieczność posiadania środowiska buildowego.
+**Advantage:** You have full control over the build process and can modify the template. Disadvantage: Longer installation time and necessity of having a build environment.
 
 ## Requirements
 
