@@ -1,0 +1,42 @@
+name: Build and Test asusctl
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout asusctl repo
+        uses: actions/checkout@v4
+        with:
+          repository: Khame/asusctl-void-linux
+          path: asusctl-repo
+
+      - name: Checkout void-packages
+        uses: actions/checkout@v4
+        with:
+          repository: void-linux/void-packages
+          path: void-packages
+
+      - name: Setup asusctl package
+        run: |
+          cp -a asusctl-repo/srcpkgs/asusctl void-packages/srcpkgs/
+          cp -a asusctl-repo/update-asusctl.sh . 2>/dev/null || true
+
+      - name: Bootstrap xbps-src
+        run: |
+          cd void-packages
+          ./xbps-src binary-bootstrap
+
+      - name: Build asusctl
+        run: |
+          cd void-packages
+          ./xbps-src pkg asusctl
+
+      - name: Verify package
+        run: |
+          cd void-packages
+          ./xbps-src check asusctl
