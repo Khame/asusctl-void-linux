@@ -2,40 +2,51 @@
 
 Packaging for [asusctl](https://github.com/OpenGamingCollective/asusctl), including the `asusd` system daemon, command-line tools, and a KDE Plasma widget. This package uses Void's runit service management; it does not install a systemd service.
 
-## 📦 Two package variants
+## 📦 Three installation options
 
-This repository provides **two installable package variants** via Void subpackages:
+This repository provides **three ways** to install `asusctl`, depending on your preference:
 
-### `asusctl` (without Plasma widget - default)
-Smaller package – only `asusd` daemon and CLI tools, works on all systems.
-
-### `asusctl-plasma` (with Plasma widget)
-Additional subpackage – contains the KDE Plasma widget, requires KDE environment.
-
-## Quick installation (single command)
-
-### Option 1: From Releases (fastest - no need to add repo)
+### Option 1: From Void repository (recommended - easiest ongoing use)
 
 ```sh
-# Import the repository signing key (do once)
+# 1. Import the repository signing key (do this once)
 sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -o /var/db/xbps/keys/Khame-void-repo.pem'
 
-# Add the Khame repository
+# 2. Add the Khame repository
 sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
 
-# Install the package from Releases (no building!)
+# 3. Install from repository (now you can use: sudo xbps-install asusctl)
+# You can also update later with: sudo xbps-install -Sudo xbps-install asusctl
+# Or with widget: sudo xbps-install asusctl asusctl-plasma
+```
+
+**Zaleta:** Po konfiguracji, instalacja jest identyczna jak innych pakietów z repozytorium Void. Możesz aktualizować paczkę komendą `sudo xbps-install -Su`.
+
+### Option 2: From GitHub Releases (single command, no repo setup)
+
+```sh
+# Install the binary package directly from Release (jedna komenda, nie trzeba dodawania repo)
 sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
 ```
 
-After this, asusctl is installed and ready to use.
+**Zaleta:** Nie wymaga reconfigurowania repozytorium systemowego. Wygoda przy jednorazowej instalacji.
 
-### Option 2: From added repository
+### Option 3: From source (using void-packages)
 
 ```sh
-# After performing Option 1 steps:
-sudo xbps-install asusctl
-# or with widget: sudo xbps-install asusctl asusctl-plasma
+# Build and install from source (pełna budowa z void-packages)
+git clone --depth=1 https://github.com/void-linux/void-packages.git
+cd void-packages
+./xbps-src binary-bootstrap
+
+git clone --depth=1 https://github.com/Khame/asusctl-void-linux.git /tmp/khame-asusctl
+cp -a /tmp/khame-asusctl/srcpkgs/asusctl /path/to/void-packages/srcpkgs/
+
+./xbps-src pkg asusctl
+sudo xbps-install --repository=hostdir/binpkgs asusctl
 ```
+
+**Zaleta:** Masz pełną kontrolę nad procesem budowy i możesz modyfikować szablon. Wadą: dłuższy czas instalacji i konieczność posiadania środowiska buildowego.
 
 ## Requirements
 
@@ -48,7 +59,7 @@ sudo xbps-install asusctl
 The published Khame XBPS repository provides the binary package for `x86_64`. First add the repository:
 
 ```sh
-# Import the repository signing key (do once)
+# Import the repository signing key (do this once)
 sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -o /var/db/xbps/keys/Khame-void-repo.pem'
 
 # Add the Khame repository
@@ -138,22 +149,3 @@ This repository contains **only packaging templates** (template + files), not th
 
 - **Khame** — `lukasz.linhard@gmail.com`
 - Assisted by **AI**
-
-## 📋 Tested on
-
-Hardware: **ASUS ROG Strix G513QM** (1.0)
-- CPU: AMD Ryzen 9 5900HX (16 cores)
-- GPU: NVIDIA GeForce RTX 3060 Mobile / Max-Q (Discrete) + AMD Radeon Vega Integrated
-- Display: 2560x1440 @ 165 Hz, 16-inch
-- BIOS: 1.0
-- Kernel: Linux 7.3.0_1
-- Desktop: KDE Plasma 6.7.5
-- Window Manager: KWin (Wayland)
-- Packages: 1127 (xbps)
-- Locale: pl_PL.UTF-8
-
-This configuration represents the target hardware for `asusctl` - ASUS ROG laptops with Armoury-supported hardware. The `asus-armoury` kernel module (available in 6.19+) enables full GPU control features.
-
-## License
-
-This repository's authored material is licensed under **MIT**. Upstream software (`asusctl`) is governed by the **MPL-2.0** license.
