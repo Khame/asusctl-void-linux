@@ -1,92 +1,57 @@
 # asusctl for Void Linux
 
-Packaging for [asusctl](https://github.com/OpenGamingCollective/asusctl), including the `asusd` system daemon, command-line tools, and a KDE Plasma widget. This package uses Void's runit service management; it does not install a systemd service.
+Packaging of [asusctl](https://github.com/OpenGamingCollective/asusctl) for Void Linux: the `asusd` daemon, command-line tools and an optional KDE Plasma widget. Services run under the native runit supervision tree — no systemd units are installed.
 
-## 📦 Three installation options
+## Installation
 
-This repository provides **three ways** to install `asusctl`, depending on your preference:
-
-### Option 1: From Void repository (recommended - easiest ongoing use)
+### Option 1: Signed XBPS repository (recommended)
 
 ```sh
-# 1. Import the repository signing key (do this once)
+# 1. Import the repository signing key (once)
 sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -o /var/db/xbps/keys/Khame-void-repo.pem'
 
-# 2. Add the Khame repository
+# 2. Add the repository
 sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
 
-# 3. Install from repository (now you can use: sudo xbps-install asusctl)
-# You can also update later with: sudo xbps-install -Su
-# Or with widget: sudo xbps-install asusctl asusctl-plasma
+# 3. Install
+sudo xbps-install -S asusctl
 ```
 
-**Advantage:** After configuration, installation is identical to other packages from the Void repository. You can update the package with the command `sudo xbps-install -Su`.
+Updates arrive through the usual `sudo xbps-install -Su`. Only `x86_64` packages are published.
 
-### Option 2: From GitHub Releases (single command, no repo setup)
+### Option 2: GitHub Release asset
 
 ```sh
-# Install the binary package directly from Release (one command, no need to add repo)
+# Import the signing key first (same key as Option 1, step 1), then:
 sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
 ```
 
-**Advantage:** Does not require reconfiguring the system repository. Convenience for one-time installation.
+Suitable for a one-off install without configuring a repository. Updates are manual.
 
-### Option 3: From source (using void-packages)
+### Option 3: Build from source
+
+The packaging source lives in [`Khame/void-packages`](https://github.com/Khame/void-packages), not in this documentation repository.
 
 ```sh
-# Build and install from source (full build from void-packages)
+# 1. Prepare a build tree
 git clone --depth=1 https://github.com/void-linux/void-packages.git
 cd void-packages
 ./xbps-src binary-bootstrap
 
-git clone --depth=1 https://github.com/Khame/asusctl-void-linux.git /tmp/khame-asusctl
-cp -a /tmp/khame-asusctl/srcpkgs/asusctl /path/to/void-packages/srcpkgs/
+# 2. Copy the asusctl package in
+git clone --depth=1 https://github.com/Khame/void-packages.git /tmp/khame-void-packages
+cp -a /tmp/khame-void-packages/srcpkgs/asusctl srcpkgs/
 
+# 3. Build and install
 ./xbps-src pkg asusctl
 sudo xbps-install --repository=hostdir/binpkgs asusctl
 ```
 
-**Advantage:** You have full control over the build process and can modify the template. Disadvantage: Longer installation time and necessity of having a build environment.
+Use this option when you want to modify the template or build for a different revision.
 
-## Install (binary)
+## Enable the service
 
-The published Khame XBPS repository provides the binary package for `x86_64`. First add the repository:
-
-```sh
-# Import the repository signing key (do this once)
-sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -o /var/db/xbps/keys/Khame-void-repo.pem'
-
-# Add the Khame repository
-sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
-```
-
-Then install:
-
-```sh
-sudo xbps-install asusctl
-```
-
-**Note:** As an alternative to adding the repository, you can install directly from a Release asset using the command above (see Option 2).
-
-## Requirements
-
-- **Kernel:** 6.19 or newer (for `asus-armoury` driver support)
-- **Architecture:** x86_64
-- **Init:** runit (no systemd)
-
-## GitHub Releases
-
-A signed binary package is available as a GitHub Release asset:
-
-- **Tag:** `v6.5.0`
-- **Package:** `asusctl-6.5.0.git20261024_1.x86_64.xbps` (15.8 MB)
-- **Download:** https://github.com/Khame/asusctl-void-linux/releases/tag/v6.5.0
-
-The repository is **RSA-signed**. First install the public key following the instructions above.
-
-## Enable the system service
-
-The service is installed at `/etc/sv/asusd`. Enable it under runit once, then start and check it:
+The runit service is installed at `/etc/sv/asusd`:
 
 ```sh
 sudo ln -s /etc/sv/asusd /var/service/asusd
@@ -94,52 +59,36 @@ sudo sv up asusd
 sudo sv status asusd
 ```
 
-If `/var/service/asusd` already exists, skip the `ln -s` command. The package also installs an XDG autostart entry for `asusd-user`; desktop environments that honor XDG autostart launch it when the user logs in.
+Skip `ln -s` if `/var/service/asusd` already exists. The package creates `/var/log/asusd` for the bundled `svlogd` logger, and an XDG autostart entry launches `asusd-user` when a desktop session starts.
 
-## KDE Plasma widget
+## What the package installs
 
-The plasma widget is **not included** in the main `asusctl` package by default (to keep the package lighter and working on any system). To enable it, install the subpackage:
+- `asusd` — system daemon (runit service `asusd`, logging to `/var/log/asusd`)
+- `asusctl`, `asusd-user`, `asus-shutdown`, `rog-control-center` — CLI and GUI tools
+- udev rules, D-Bus policy, keyboard layouts and notification icons
+- KDE Plasma widget `org.voidlinux.plasma.asusctl` (Aura lighting, battery charge limit, keyboard and Aura on/off control)
 
-```sh
-sudo xbps-install asusctl asusctl-plasma
-```
+Add the widget through Plasma's widget picker after installation. It is optional: on GNOME, XFCE, sway or a plain console the daemon and CLI tools work on their own.
 
-After installing the widget, add **ASUS Control (asusctl)** to the panel or desktop through Plasma 6's widget picker. The widget provides:
-- Aura lighting control
-- Battery charge limit control
-- Keyboard control
-- Aura on/off control
+## Requirements
 
-> **Without the widget** the `asusctl` package still functions: the `asusd` daemon runs in the background, and CLI tools (`asusctl`, `asusd-user`) are available from the command line on any desktop environment.
+- **Kernel:** 6.19 or newer (for `asus-armoury` driver support)
+- **Architecture:** `x86_64`
+- **Init:** runit (systemd is not supported)
 
-## Build from source
+## Repository layout
 
-This repository contains **only packaging templates** (template + files), not the full `void-packages` build tree. To build from source:
+- `README.md` — installation and usage (this file)
+- `VOID_PACKAGING.md` — maintainer guide: template layout, build and release procedure
+- `LICENSE` — MIT for the material authored in this repository
 
-1. Clone upstream void-packages:
-   ```sh
-   git clone --depth=1 https://github.com/void-linux/void-packages.git
-   cd void-packages
-   ./xbps-src binary-bootstrap
-   ```
-
-2. Copy this package into the void-packages tree:
-   ```sh
-   git clone --depth=1 https://github.com/Khame/asusctl-void-linux.git /tmp/khame-asusctl
-   cp -a /tmp/khame-asusctl/srcpkgs/asusctl /path/to/void-packages/srcpkgs/
-   ```
-
-3. Build and install:
-   ```sh
-   ./xbps-src pkg asusctl
-   sudo xbps-install --repository=hostdir/binpkgs asusctl
-   ```
+Build files are not duplicated here; `srcpkgs/asusctl/` in [`Khame/void-packages`](https://github.com/Khame/void-packages) is the single source of truth.
 
 ## Upstream
 
 - Project: [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
-- License: MPL-2.0
-- Current packaged version: `6.5.0.git20261024` (latest commit from main branch)
+- Packaged version: `6.5.0.git20261024` (commit `13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`)
+- Upstream license: MPL-2.0
 
 ## Author
 

@@ -1,133 +1,69 @@
 # Void Linux Packaging — asusctl Maintainer Guide
 
-This repository contains **Void Linux `xbps-src` packaging** for `asusctl` maintained by **Khame + AI**.
+This repository holds installation documentation and release notes for the `asusctl` package. It contains no packaging source: the template and service files live in [`Khame/void-packages`](https://github.com/Khame/void-packages) under `srcpkgs/asusctl/`, which is the single source of truth.
 
-## 📦 Two package variants (subpackages)
+For user-facing installation instructions see [README.md](README.md).
 
-This packaging supports **two installable variants** using Void Linux subpackages:
+## Package layout
 
-### Main package: `asusctl` (without Plasma widget)
-| Description | Install |
-|---------|---------|
-| `asusctl` | ASUS ROG control daemon, CLI and optional KDE widget (runit, no systemd) | [README](README.md) |
+| Path (in `Khame/void-packages`) | Purpose |
+|---|---|
+| `srcpkgs/asusctl/template` | `xbps-src` template: version, checksums, dependency lists, `do_install` |
+| `srcpkgs/asusctl/files/asusd/run` | runit `run` script for `asusd` |
+| `srcpkgs/asusctl/files/asusd-log/run` | `svlogd` logger for `/var/log/asusd` |
+| `srcpkgs/asusctl/files/xdg-autostart/asusd-user.desktop` | session autostart for `asusd-user` |
+| `srcpkgs/asusctl/files/plasmoid/` | KDE Plasma widget (QML) |
+| `docs/hostdir/binpkgs/` | published signed binaries and repository metadata |
 
-**Characteristics:**
-- Smaller package size (no QML/widget files)
-- Works on all graphical environments (GNOME, XFCE, sway, etc.)
-- No KDE dependencies in `depends` (only `dbus eudec`)
-- `optdepends` contains information about the Plasma widget as optional
+## Template characteristics
 
-**Building:**
+- `build_style=gnu-makefile` with `make_build_target="all"`.
+- Upstream `make install` is not used, because it installs systemd units. All files are placed explicitly in `do_install`.
+- `post_patch` removes the `systemctl` callout from `data/asusd.rules`; runit has no such command and udev logs errors on every hotplug otherwise.
+- runit replaces systemd: `/etc/sv/asusd` and `/etc/sv/asusd/log` are installed from `files/`.
+- The Plasma widget ships inside the main package. `plasma-workspace` and `kirigami2` are `optdepends`, so non-KDE systems do not pull them in.
+- `vmkdir var/log/asusd` in `do_install` gives `svlogd` a writable directory.
+
+Build dependencies: `pkg-config rust cargo clang cmake gettext git`, plus `eudev-libudev-devel dbus-devel pcre2-devel libxkbcommon-devel libzstd-devel gtk+3-devel`. Runtime dependencies are `dbus eudev`.
+
+## Building locally
+
 ```sh
+git clone --depth=1 https://github.com/void-linux/void-packages.git
+cd void-packages
+./xbps-src binary-bootstrap
+
+git clone --depth=1 https://github.com/Khame/void-packages.git /tmp/khame-void-packages
+cp -a /tmp/khame-void-packages/srcpkgs/asusctl srcpkgs/
+
 ./xbps-src pkg asusctl
-# or
-sudo xbps-install asusctl
+./xbps-src check asusctl
+sudo xbps-install --repository=hostdir/binpkgs asusctl
 ```
 
-### Subpackage: `asusctl-plasma` (with Plasma widget)
-| Description | Install |
-|---------|---------|
-| `asusctl-plasma` | ASUS ROG control daemon Plasma (KDE) | - |
+The built package appears in `hostdir/binpkgs/`. Testing the service before publishing:
 
-**Characteristics:**
-- Contains QML widget, icons and KDE panel integration
-- Requires KDE environment: `plasma-workspace`, `kirigami2`
-- Installs in parallel with the main package:
-  ```sh
-  sudo xbps-install asusctl asusctl-plasma
-  ```
-
-**Building the subpackage:**
 ```sh
-./xbps-src pkg asusctl-plasma
+sudo ln -sfn /etc/sv/asusd /var/service/asusd
+sudo sv status asusd
+sudo sv down asusd
 ```
 
-## Package
+## Releasing a new version
 
-| Description | Install |
-|---------|---------|
-| `asusctl` | ASUS ROG control daemon, CLI and KDE widget (runit, no systemd) | [README](README.md) |
+1. Check the upstream version and compare it with `version=` in the template. Do nothing if it is unchanged.
+2. Update `version=`, point `distfiles=` at the new commit or tag archive URL and let `xbps-src` compute the new `checksum=`.
+3. Increase `revision=` for template-only changes that keep the same upstream version.
+4. Build, install and test locally.
+5. Copy the resulting `.xbps` and `.sig2` files into `docs/hostdir/binpkgs/`, regenerate `repodata`, and publish from `Khame/void-packages`.
+6. Attach the same `.xbps` to a GitHub Release in this repository and update the version references in `README.md`.
 
-## Upstream source
+Packages are signed with the Khame repository RSA key; the private key is kept outside both repositories. The public key is published at `https://khame.github.io/void-packages/Khame-void-repo.pub` and must be imported by users before installation. Unsigned installation (`allow-unsigned`) is never supported.
 
-- **Project:** [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
-- **Current version:** `6.5.0.git20261024` (latest commit from main branch)
-- **Source:** tar.gz snapshot from GitHub commit `13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`
+No CI runs on these repositories; releases are built and published manually.
 
-This repository contains **only Void Linux packaging** (template + service files + README). Original source code, documentation and README are maintained upstream.
-
-## Building
-
-1. **Setup void-packages bootstrap:**
-   ```sh
-   git clone --depth=1 https://github.com/void-linux/void-packages.git
-   cd void-packages
-   ./xbps-src binary-bootstrap
-   ```
-
-2. **Copy package template:**
-   ```sh
-   git clone --depth=1 https://github.com/Khame/asusctl-void-linux.git /tmp/khame-asusctl
-   cp -a /tmp/khame-asusctl/srcpkgs/asusctl /path/to/void-packages/srcpkgs/
-   ```
-
-3. **Build the main package (without widget):**
-   ```sh
-   ./xbps-src pkg asusctl
-   ```
-
-4. **Build subpackage with widget (optional):**
-   ```sh
-   ./xbps-src pkg asusctl-plasma
-   ```
-
-5. **Verify and install:**
-   ```sh
-   ./xbps-src check asusctl
-   sudo xbps-install --repository=hostdir/binpkgs asusctl
-   # or with widget: sudo xbps-install asusctl asusctl-plasma
-   ```
-
-## Requirements
-
-- **Kernel:** 6.19 or newer (for `asus-armoury` driver support)
-- **Architecture:** x86_64
-- **Init:** runit (no systemd)
-- **Dependencies:** dbus, eudev (runtime); pkg-config, rust, cargo, clang, cmake, gettext, git (build)
-
-**Optdepends:** `plasma-workspace: KDE widget for asusd control`, `kirigami2: KDE widget for asusd control`
-
-## Author / Packager
+## Author and license
 
 - **Khame** — `lukasz.linhard@gmail.com`
 - Assisted by **AI**
-
-## License
-
-MIT — this repository's authored material. Upstream software governed by its own license.
-
-## Binary repository and Releases
-
-Signed binary packages are published via **GitHub Releases** (`v6.5.0`):
-
-```sh
-# Install from Release asset:
-sudo xbps-install --binary-package-url \
-  https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
-
-# Or add the signed repository (see README for key instructions):
-sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
-sudo xbps-install -S
-sudo xbps-install asusctl
-```
-
-**Note:** GitHub Actions CI is not automatically enabled because the deployment token lacks the `workflow` scope. To add CI, generate a token with `workflow` scope and configure it as a repository secret `GH_TOKEN`.
-
-## Subpackage maintainance
-
-To add or modify the `asusctl-plasma` subpackage:
-
-1. Edit the file `srcpkgs/asusctl/template`
-2. Change the `package="asusctl-plasma"` variable and its dependencies
-3. Ensure widget files are located in `srcpkgs/asusctl/files/plasmoid/org.voidlinux.plasma.asusctl/`
-4. Test the build: `./xbps-src pkg asusctl-plasma`
+- MIT for the material authored in this repository; upstream asusctl is MPL-2.0.
