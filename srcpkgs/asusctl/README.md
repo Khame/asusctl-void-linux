@@ -19,7 +19,43 @@ cd asusctl-void-linux
 sudo xbps-install asusctl
 ```
 
-Or build locally (see below).
+Or install from GitHub Releases (no need to add repository manually):
+
+```sh
+sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
+```
+
+## GitHub Releases
+
+A signed binary package is available as a GitHub Release asset:
+
+- **Tag:** `v6.5.0`
+- **Package:** `asusctl-6.5.0.git20261024_1.x86_64.xbps` (15.8 MB)
+- **Download:** https://github.com/Khame/asusctl-void-linux/releases/tag/v6.5.0
+
+The repository is **RSA-signed**. Install the public key first:
+
+```sh
+sudo sh -c 'curl -sL https://khame.github.io/void-packages/Khame-void-repo.pub -o /var/db/xbps/keys/Khame-void-repo.pem'
+```
+
+Then add the repository and install:
+
+```sh
+sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
+sudo xbps-install -S
+sudo xbps-install asusctl
+```
+
+## GitHub Actions CI
+
+This repository does not include automatic GitHub Actions CI because the Personal Access Token used for deployment lacks the `workflow` scope required to create/modify `.github/workflows/` files. To enable CI:
+
+1. Generate a new token at GitHub with `workflow` scope
+2. Add it as a repository secret `GH_TOKEN`
+3. The workflow will auto-bootstrap `void-packages`, build `asusctl` with `xbps-src`, and run verification
+
+For now, use the manual `update-asusctl.sh` script or install from Release assets.
 
 ## Enable the system service
 

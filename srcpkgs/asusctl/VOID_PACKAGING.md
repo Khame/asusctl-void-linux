@@ -57,3 +57,20 @@ This repository contains **only Void Linux packaging** (template + service files
 ## License
 
 MIT — this repository's authored material. Upstream software governed by its own license.
+
+## Binary repository and Releases
+
+Signed binary packages are published via **GitHub Releases** (`v6.5.0`):
+
+```sh
+# Install from Release asset:
+sudo xbps-install --binary-package-url \
+  https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
+
+# Or add the signed repository (see README for key instructions):
+sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
+sudo xbps-install -S
+sudo xbps-install asusctl
+```
+
+**Note:** GitHub Actions CI is not automatically enabled because the deployment token lacks the `workflow` scope. To add CI, generate a token with `workflow` scope and configure it as a repository secret `GH_TOKEN`.
