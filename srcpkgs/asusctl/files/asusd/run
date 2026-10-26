@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/asusd -l /var/log/asusd.log
