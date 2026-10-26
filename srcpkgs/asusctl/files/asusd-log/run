@@ -1,2 +1,0 @@
-#!/bin/sh
-exec /usr/bin/logsv -t asusd /usr/log/asusd.log
