@@ -13,7 +13,7 @@ For user-facing installation instructions see [README.md](README.md).
 | `srcpkgs/asusctl/files/asusd-log/run` | `svlogd` logger for `/var/log/asusd` |
 | `srcpkgs/asusctl/files/xdg-autostart/asusd-user.desktop` | session autostart for `asusd-user` |
 | `srcpkgs/asusctl/files/plasmoid/` | KDE Plasma widget (QML) |
-| `docs/hostdir/binpkgs/` | published signed binaries and repository metadata |
+| `docs/` | published signed binaries, `x86_64-repodata`, repository public key and landing page |
 
 ## Template characteristics
 
@@ -55,10 +55,29 @@ sudo sv down asusd
 2. Update `version=`, point `distfiles=` at the new commit or tag archive URL and let `xbps-src` compute the new `checksum=`.
 3. Increase `revision=` for template-only changes that keep the same upstream version.
 4. Build, install and test locally.
-5. Copy the resulting `.xbps` and `.sig2` files into `docs/hostdir/binpkgs/`, regenerate `repodata`, and publish from `Khame/void-packages`.
-6. Attach the same `.xbps` to a GitHub Release in this repository and update the version references in `README.md`.
+5. Sign the package, rebuild the index and sign the repository:
 
-Packages are signed with the Khame repository RSA key; the private key is kept outside both repositories. The public key is published at `https://khame.github.io/void-packages/Khame-void-repo.pub` and must be imported by users before installation. Unsigned installation (`allow-unsigned`) is never supported.
+   ```sh
+   xbps-rindex -S --privkey="$HOME/.config/Khame-void-repo-private.pem" \
+     --signedby="Khame <lukasz.linhard@gmail.com>" hostdir/binpkgs/asusctl-*.xbps
+   cp hostdir/binpkgs/asusctl-*.xbps hostdir/binpkgs/asusctl-*.xbps.sig2 docs/
+   xbps-rindex -a docs/asusctl-*.xbps
+   xbps-rindex -s --privkey="$HOME/.config/Khame-void-repo-private.pem" \
+     --signedby="Khame <lukasz.linhard@gmail.com>" docs
+   ```
+
+6. Remove the previous package version from `docs/` so the index lists one version only.
+7. Commit and push `Khame/void-packages`. GitHub Pages serves the `docs/` directory of `main`, so the repository is published at `https://khame.github.io/void-packages/`.
+8. Attach the same `.xbps` to a GitHub Release in this repository and update the version references in `README.md`.
+
+Packages are signed with the Khame repository RSA key. The private key is kept outside both repositories, for example at `~/.config/Khame-void-repo-private.pem` with mode `600`. The public key must be copied to `docs/Khame-void-repo.pub`; users import it as `/var/db/xbps/keys/Khame-void-repo.pem` before installing. Unsigned installation (`allow-unsigned`) is never supported.
+
+The repository index (`x86_64-repodata`) carries no separate signature: `xbps` verifies each package against the imported public key. Only the `x86_64` architecture is published.
+
+Two packaging traps worth remembering:
+
+- Empty directories do not survive `.xbps` creation, so `vmkdir var/log/asusd` has no effect. Create runtime directories in the runit run script instead.
+- Reusing the same `version` and `revision` requires `./xbps-src -f pkg asusctl`; without `-f` the previous package is reused.
 
 No CI runs on these repositories; releases are built and published manually.
 
