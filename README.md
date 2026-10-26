@@ -28,7 +28,7 @@ Updates arrive through the usual `sudo xbps-install -Su`. Only `x86_64` packages
 sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
 ```
 
-Suitable for a one-off install of a specific build. Updates are manual.
+Suitable for a one-off install of a specific build. Updates are manual. The release also carries the `.sig2` signature and `Khame-void-repo.pub`; key fingerprint `35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66`.
 
 ### Option 3: Build from source
 
