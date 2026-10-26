@@ -57,18 +57,24 @@ sudo sv down asusd
 3. Increase `revision=` for template-only changes that keep the same upstream version.
 4. Run `xlint srcpkgs/asusctl/template` and fix every warning before building.
 5. Build, install and test locally. After replacing a run script, restart the service and its logger separately: `sudo sv restart asusd` does not restart `asusd/log`.
-6. Sign the package, rebuild the index and sign the repository:
+6. Pick the package that was just built and sign it:
 
    ```sh
+   pkg=$(ls -t hostdir/binpkgs/asusctl-*.xbps | head -1)
    xbps-rindex -S --privkey="$HOME/.config/Khame-void-repo-private.pem" \
-     --signedby="Khame <lukasz.linhard@gmail.com>" hostdir/binpkgs/asusctl-*.xbps
-   cp hostdir/binpkgs/asusctl-*.xbps hostdir/binpkgs/asusctl-*.xbps.sig2 docs/
-   xbps-rindex -a docs/asusctl-*.xbps
+     --signedby="Khame <lukasz.linhard@gmail.com>" "$pkg"
+   ```
+
+7. Remove the previous package and signature from `docs/`, copy the new pair and rebuild the index. Do not pass a `asusctl-*.xbps` glob to `xbps-rindex -a`: it would also match the old package and could register that version instead.
+
+   ```sh
+   rm -f docs/asusctl-*.xbps docs/asusctl-*.xbps.sig2
+   cp "$pkg" "$pkg.sig2" docs/
+   xbps-rindex -a "docs/$(basename "$pkg")"
    xbps-rindex -s --privkey="$HOME/.config/Khame-void-repo-private.pem" \
      --signedby="Khame <lukasz.linhard@gmail.com>" docs
    ```
 
-7. Remove the previous package version from `docs/` so the index lists one version only.
 8. Commit and push `Khame/void-packages`. GitHub Pages serves the `docs/` directory of `main`, so the repository is published at `https://khame.github.io/void-packages/`.
 9. Attach the same `.xbps` to a GitHub Release in this repository and update the version references in `README.md`.
 
