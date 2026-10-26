@@ -25,7 +25,7 @@ Updates arrive through the usual `sudo xbps-install -Su`. Only `x86_64` packages
 
 ```sh
 # Import the repository key first (Option 1, steps 1-2), then:
-sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261024_1.x86_64.xbps
+sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261024_2.x86_64.xbps
 ```
 
 Suitable for a one-off install of a specific build. Updates are manual. The release also carries the `.sig2` signature and `Khame-void-repo.pub`; key fingerprint `35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66`.
@@ -91,7 +91,7 @@ Build files are not duplicated here; `srcpkgs/asusctl/` in [`Khame/void-packages
 ## Upstream
 
 - Project: [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
-- Packaged version: `6.5.0.20261024` (commit `13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`)
+- Packaged version: `6.5.0.20261024_2` (commit `13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`)
 - Upstream license: MPL-2.0
 
 ## Author
