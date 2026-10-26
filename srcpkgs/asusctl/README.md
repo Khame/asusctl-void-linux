@@ -48,12 +48,6 @@ sudo xbps-install --repository=hostdir/binpkgs asusctl
 
 **Advantage:** You have full control over the build process and can modify the template. Disadvantage: Longer installation time and necessity of having a build environment.
 
-## Requirements
-
-- **Kernel:** 6.19 or newer (for `asus-armoury` driver support)
-- **Architecture:** x86_64
-- **Init:** runit (no systemd)
-
 ## Install (binary)
 
 The published Khame XBPS repository provides the binary package for `x86_64`. First add the repository:
@@ -72,11 +66,13 @@ Then install:
 sudo xbps-install asusctl
 ```
 
-Or install from GitHub Releases (no need to add repository manually):
+**Note:** As an alternative to adding the repository, you can install directly from a Release asset using the command above (see Option 2).
 
-```sh
-sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.git20261024_1.x86_64.xbps
-```
+## Requirements
+
+- **Kernel:** 6.19 or newer (for `asus-armoury` driver support)
+- **Architecture:** x86_64
+- **Init:** runit (no systemd)
 
 ## GitHub Releases
 
