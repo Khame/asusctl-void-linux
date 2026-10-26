@@ -22,7 +22,7 @@ For user-facing installation instructions see [README.md](README.md).
 - The version is a git snapshot: `version=6.5.0.20261024` plus `_commit=13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`. `distfiles` uses `${_commit}` and no `wrksrc` is needed; `xbps-src` renames the extracted top-level directory to `$wrksrc` automatically.
 - `data/asusd.rules` is not installed. Its only actions are `TAG+="systemd"` and `ENV{SYSTEMD_WANTS}+="asusd.service asus-shutdown.service"`; eudev ignores both, and `asusd` is started by runit.
 - `asus-shutdown` is not installed. It blocks on a `PrepareForShutdown` signal from logind and calls `systemctl`; runit's `/usr/bin/shutdown` never sends that signal, so the helper would never apply its deferred GPU settings.
-- runit replaces systemd: `/etc/sv/asusd` and `/etc/sv/asusd/log` are installed from `files/`. The logger creates `/var/log/asusd` itself because empty directories do not survive package creation.
+- runit replaces systemd: `/etc/sv/asusd` and `/etc/sv/asusd/log` are installed from `files/`. The logger creates `/var/log/asusd` itself because empty directories do not survive package creation. The `supervise` symlinks are created by `runsv` at runtime and are not shipped.
 - The Plasma widget ships inside the main package. Runtime requirements are in `srcpkgs/asusctl/INSTALL.msg`, not in `optdepends`: `xbps-src` does not support an `optdepends` variable and silently ignores it.
 
 Build dependencies: `pkg-config rust cargo clang cmake gettext git`, plus `eudev-libudev-devel dbus-devel pcre2-devel libxkbcommon-devel libzstd-devel gtk+3-devel`. Runtime dependencies are `dbus eudev`.
