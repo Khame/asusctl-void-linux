@@ -62,7 +62,7 @@ sudo sv down asusd
    ```sh
    pkg=$(ls -t hostdir/binpkgs/asusctl-*.xbps | head -1)
    xbps-rindex -S --privkey="$HOME/.config/Khame-void-repo-private.pem" \
-     --signedby="Khame <lukasz.linhard@gmail.com>" "$pkg"
+     --signedby="Khame <24250040+Khame@users.noreply.github.com>" "$pkg"
    ```
 
 7. Remove the previous package and signature from `docs/`, copy the new pair and rebuild the index. Do not pass a `asusctl-*.xbps` glob to `xbps-rindex -a`: it would also match the old package and could register that version instead.
@@ -72,7 +72,7 @@ sudo sv down asusd
    cp "$pkg" "$pkg.sig2" docs/
    xbps-rindex -a "docs/$(basename "$pkg")"
    xbps-rindex -s --privkey="$HOME/.config/Khame-void-repo-private.pem" \
-     --signedby="Khame <lukasz.linhard@gmail.com>" docs
+     --signedby="Khame <24250040+Khame@users.noreply.github.com>" docs
    ```
 
 8. Commit and push `Khame/void-packages`. GitHub Pages serves the `docs/` directory of `main`, so the repository is published at `https://khame.github.io/void-packages/`.
@@ -91,6 +91,6 @@ No CI runs on these repositories; releases are built and published manually.
 
 ## Author and license
 
-- **Khame** — `lukasz.linhard@gmail.com`
+- **Khame** — [@Khame](https://github.com/Khame)
 - Assisted by **AI**
 - MIT for the material authored in this repository; upstream asusctl is MPL-2.0.

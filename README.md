@@ -31,7 +31,7 @@ Updates arrive through the usual `sudo xbps-install -Su`. Only `x86_64` packages
 
 ```sh
 # Import the repository key first (Option 1, steps 1-2), then:
-sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261024_6.x86_64.xbps
+sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261024_7.x86_64.xbps
 ```
 
 Suitable for a one-off install of a specific build. Updates are manual. The release also carries the `.sig2` signature and `Khame-void-repo.pub`; key fingerprint `35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66`.
@@ -82,11 +82,14 @@ Add the widget through Plasma's widget picker after installation. It requires KD
 
 ## Local patches
 
-Revision 6 carries three local patches on top of upstream `13cdaa9`, all needed on the tested hardware:
+Revision 7 carries four local patches on top of upstream `13cdaa9`, all needed on the tested hardware:
 
 1. **Backlight restored on resume** — upstream never registers the Aura logind `PrepareForSleep` handler, so the keyboard brightness and mode are not reloaded after suspend/hibernate.
 2. **`asusd-user` start-up panic** — blocking D-Bus proxies were created inside the Tokio runtime, which aborts with `Cannot start a runtime from within a runtime`.
 3. **Aura state and brightness survive sleep** — the sleep handler's config reload reset runtime-only fields, so every later colour/mode change failed with "The Aura effect is not supported" until `asusd` restarted, and a transient `Off` brightness written by desktop power management was saved instead of the chosen level.
+4. **No direct addressing on non-per-key keyboards** — `asusd-user` always ran a 30 Hz Aura packet loop against `/xyz/ljones/Aura`, an object that only exists on per-key keyboards, so every login logged `Unknown object '/xyz/ljones/Aura'`.
+
+Revision 7 also fixes two packaging gaps: the keyboard layouts are installed in `/usr/share/rog-gui/layouts/` where `asusd-user` looks for them, `aura_support.ron` is installed, and `asusd-user` runs through a wrapper that keeps its log in `~/.local/state/asusd/asusd-user.log` instead of discarding it.
 
 Rationale, verification commands and a checklist for checking whether a newer upstream release still needs them: [`srcpkgs/asusctl/PATCHES.md`](https://github.com/Khame/void-packages/blob/main/srcpkgs/asusctl/PATCHES.md). Nothing has been reported or sent upstream.
 
@@ -114,10 +117,10 @@ Build files are not duplicated here; `srcpkgs/asusctl/` in [`Khame/void-packages
 ## Upstream
 
 - Project: [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
-- Packaged version: `6.5.0.20261024_6` (commit `13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`)
+- Packaged version: `6.5.0.20261024_7` (commit `13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`)
 - Upstream license: MPL-2.0
 
 ## Author
 
-- **Khame** — `lukasz.linhard@gmail.com`
+- **Khame** — [@Khame](https://github.com/Khame)
 - Assisted by **AI**
