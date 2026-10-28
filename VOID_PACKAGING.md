@@ -92,5 +92,4 @@ No CI runs on these repositories; releases are built and published manually.
 ## Author and license
 
 - **Khame** — [@Khame](https://github.com/Khame)
-- Assisted by **AI**
 - MIT for the material authored in this repository; upstream asusctl is MPL-2.0.

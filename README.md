@@ -123,4 +123,3 @@ Build files are not duplicated here; `srcpkgs/asusctl/` in [`Khame/void-packages
 ## Author
 
 - **Khame** — [@Khame](https://github.com/Khame)
-- Assisted by **AI**
