@@ -41,7 +41,7 @@ Updates come with `sudo xbps-install -Su`. Only x86_64 is built.
 Import the key first, then:
 
 ```sh
-sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261024_8.x86_64.xbps
+sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261024_9.x86_64.xbps
 ```
 
 This is for one install. Updates are manual. The release also has the `.sig2`
@@ -97,7 +97,7 @@ systemd and do nothing here.
 
 ## Patches
 
-Revision 8 carries five patches on top of upstream `13cdaa9`. I needed all of
+Revision 9 carries six patches on top of upstream `13cdaa9`. I needed all of
 them on this laptop.
 
 1. Upstream never registers the Aura logind `PrepareForSleep` handler, so the
@@ -114,6 +114,9 @@ them on this laptop.
    `Unknown object '/xyz/ljones/Aura'`.
 5. `reload()` at startup restored the effect but not the brightness, so
    `asusctl leds get` and the GUI reported `Off` on a lit keyboard.
+6. elogind can send `PrepareForSleep(false)` more than once for one wake. The
+   handler ran twice and reloaded the keyboard twice. The patch ignores an
+   identical signal received within two seconds.
 
 Revision 7 fixed the packaging side: layouts go to
 `/usr/share/rog-gui/layouts/` where `asusd-user` looks for them,
@@ -156,7 +159,7 @@ The build files are not copied here. The single copy is
 
 Project: [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
 
-Packaged version: `6.5.0.20261024_8`, commit
+Packaged version: `6.5.0.20261024_9`, commit
 `13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`
 
 License: MPL-2.0
