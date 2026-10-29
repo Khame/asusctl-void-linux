@@ -1,65 +1,73 @@
 # asusctl for Void Linux
 
-Packaging of [asusctl](https://github.com/OpenGamingCollective/asusctl) for Void Linux: the `asusd` daemon, command-line tools and an optional KDE Plasma widget. Services run under the native runit supervision tree — no systemd units are installed.
+asusctl packaged for Void Linux: the `asusd` daemon, its command line tools and
+the optional KDE Plasma widget. Everything runs under runit. The package
+installs no systemd units.
 
 ## Why this exists
 
-I built this package for my own laptop: I wanted asusctl on Void Linux, which uses runit instead of systemd, and nothing packaged it that way. It has been running here since then, so I shared it in case someone else finds it useful.
+I wanted asusctl on my own laptop and Void runs runit, so the upstream units
+were no use. Nobody packaged it that way, so I built it, fixed the parts that
+broke here, and published it in case someone else needs the same thing.
 
-This is a personal project, not an official Void package, and comes with no support commitment. Bug reports and patches are welcome.
+It is a personal project, not an official Void package, and there is no
+support promise behind it. Bug reports and patches are welcome anyway.
 
-## Installation
+## Install
 
-### Option 1: Signed XBPS repository (recommended)
+### Signed XBPS repository
 
 ```sh
-# 1. Add the repository
+# add the repository
 sudo sh -c 'echo "repository=https://khame.github.io/void-packages/" > /etc/xbps.d/10-khame.conf'
 
-# 2. Sync the index; xbps asks to import the repository key — answer Y
+# sync the index, answer Y when xbps asks to import the key
 sudo xbps-install -S
 
-# 3. Install
 sudo xbps-install asusctl
 ```
 
-The repository key is embedded in the signed index and imported by `xbps` automatically; it is stored as `/var/db/xbps/keys/35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66.plist`. The public key is also published as [`Khame-void-repo.pub`](https://khame.github.io/void-packages/Khame-void-repo.pub) if you want to verify it manually.
+The key sits inside the signed index, so xbps imports it without an extra
+step. It ends up as
+`/var/db/xbps/keys/35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66.plist`.
+The same key is published as
+[Khame-void-repo.pub](https://khame.github.io/void-packages/Khame-void-repo.pub)
+if you want to compare it yourself.
 
-Updates arrive through the usual `sudo xbps-install -Su`. Only `x86_64` packages are published.
+Updates come with `sudo xbps-install -Su`. Only x86_64 is built.
 
-### Option 2: GitHub Release asset
+### Release asset
+
+Import the key first, then:
 
 ```sh
-# Import the repository key first (Option 1, steps 1-2), then:
-sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261024_7.x86_64.xbps
+sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261024_8.x86_64.xbps
 ```
 
-Suitable for a one-off install of a specific build. Updates are manual. The release also carries the `.sig2` signature and `Khame-void-repo.pub`; key fingerprint `35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66`.
+This is for one install. Updates are manual. The release also has the `.sig2`
+file and the public key, fingerprint
+`35:2b:06:7c:52:04:76:b1:4a:de:a0:8b:49:9c:e2:66`.
 
-### Option 3: Build from source
+### From source
 
-The packaging source lives in [`Khame/void-packages`](https://github.com/Khame/void-packages), not in this documentation repository.
+The package lives in
+[Khame/void-packages](https://github.com/Khame/void-packages), not here.
 
 ```sh
-# 1. Prepare a build tree
 git clone --depth=1 https://github.com/void-linux/void-packages.git
 cd void-packages
 ./xbps-src binary-bootstrap
 
-# 2. Copy the asusctl package in
 git clone --depth=1 https://github.com/Khame/void-packages.git /tmp/khame-void-packages
 cp -a /tmp/khame-void-packages/srcpkgs/asusctl srcpkgs/
 
-# 3. Build and install
 ./xbps-src pkg asusctl
 sudo xbps-install --repository=hostdir/binpkgs asusctl
 ```
 
-Use this option when you want to modify the template or build for a different revision.
+Do this when you want to change the template or build another revision.
 
-## Enable the service
-
-The runit service is installed at `/etc/sv/asusd`:
+## Start the service
 
 ```sh
 sudo ln -s /etc/sv/asusd /var/service/asusd
@@ -67,59 +75,93 @@ sudo sv up asusd
 sudo sv status asusd
 ```
 
-Skip `ln -s` if `/var/service/asusd` already exists. The package creates `/var/log/asusd` for the bundled `svlogd` logger, and an XDG autostart entry launches `asusd-user` when a desktop session starts.
+Skip the symlink if `/var/service/asusd` already exists. The package creates
+`/var/log/asusd` for the bundled `svlogd`, and an XDG autostart entry starts
+`asusd-user` with the desktop session.
 
-## What the package installs
+## What gets installed
 
-- `asusd` — system daemon (runit service `asusd`, logging to `/var/log/asusd`)
-- `asusctl`, `asusd-user`, `rog-control-center` — CLI and GUI tools
-- D-Bus policy, keyboard layouts and notification icons
-- KDE Plasma widget `org.voidlinux.plasma.asusctl` (Aura lighting, battery charge limit, keyboard and Aura on/off control)
+`asusd` as a runit service with logs in `/var/log/asusd`, the `asusctl`,
+`asusd-user` and `rog-control-center` binaries, the D-Bus policy, keyboard
+layouts, notification icons, and the Plasma widget
+`org.voidlinux.plasma.asusctl`.
 
-The upstream `asus-shutdown` helper and its udev rule are not installed: both depend on systemd and do nothing under runit.
+The widget covers Aura lighting, the battery charge limit and switching the
+keyboard and Aura off. It needs Plasma 6; `INSTALL.msg` lists
+`plasma-workspace`, `kf6-kirigami` and `plasma5support`. Without KDE the daemon
+and the CLI work on their own, so GNOME, XFCE, sway and a plain console are
+fine.
 
-Add the widget through Plasma's widget picker after installation. It requires KDE Plasma 6: the package's `INSTALL.msg` lists `plasma-workspace`, `kf6-kirigami` and `plasma5support`. The widget is optional: on GNOME, XFCE, sway or a plain console the daemon and CLI tools work on their own.
+Upstream's `asus-shutdown` helper and its udev rule are left out. Both expect
+systemd and do nothing here.
 
-## Local patches
+## Patches
 
-Revision 7 carries four local patches on top of upstream `13cdaa9`, all needed on the tested hardware:
+Revision 8 carries five patches on top of upstream `13cdaa9`. I needed all of
+them on this laptop.
 
-1. **Backlight restored on resume** — upstream never registers the Aura logind `PrepareForSleep` handler, so the keyboard brightness and mode are not reloaded after suspend/hibernate.
-2. **`asusd-user` start-up panic** — blocking D-Bus proxies were created inside the Tokio runtime, which aborts with `Cannot start a runtime from within a runtime`.
-3. **Aura state and brightness survive sleep** — the sleep handler's config reload reset runtime-only fields, so every later colour/mode change failed with "The Aura effect is not supported" until `asusd` restarted, and a transient `Off` brightness written by desktop power management was saved instead of the chosen level.
-4. **No direct addressing on non-per-key keyboards** — `asusd-user` always ran a 30 Hz Aura packet loop against `/xyz/ljones/Aura`, an object that only exists on per-key keyboards, so every login logged `Unknown object '/xyz/ljones/Aura'`.
+1. Upstream never registers the Aura logind `PrepareForSleep` handler, so the
+   keyboard stayed dark after suspend and hibernate. The patch registers it.
+2. `asusd-user` created its blocking D-Bus proxies inside the Tokio runtime and
+   panicked at start with `Cannot start a runtime from within a runtime`.
+3. The sleep handler reloaded the config and wiped fields that only exist at
+   runtime. Every later colour or mode change then failed with "The Aura effect
+   is not supported" until `asusd` restarted. The same reload also saved a
+   transient `Off` written by desktop power management over the brightness I
+   had picked.
+4. `asusd-user` always ran a 30 Hz Aura loop against `/xyz/ljones/Aura`, an
+   object only per-key keyboards have, so every login logged
+   `Unknown object '/xyz/ljones/Aura'`.
+5. `reload()` at startup restored the effect but not the brightness, so
+   `asusctl leds get` and the GUI reported `Off` on a lit keyboard.
 
-Revision 7 also fixes two packaging gaps: the keyboard layouts are installed in `/usr/share/rog-gui/layouts/` where `asusd-user` looks for them, `aura_support.ron` is installed, and `asusd-user` runs through a wrapper that keeps its log in `~/.local/state/asusd/asusd-user.log` instead of discarding it.
+Revision 7 fixed the packaging side: layouts go to
+`/usr/share/rog-gui/layouts/` where `asusd-user` looks for them,
+`aura_support.ron` is installed, and the session daemon runs through a wrapper
+that keeps its log in `~/.local/state/asusd/asusd-user.log`.
 
-Rationale, verification commands and a checklist for checking whether a newer upstream release still needs them: [`srcpkgs/asusctl/PATCHES.md`](https://github.com/Khame/void-packages/blob/main/srcpkgs/asusctl/PATCHES.md). Nothing has been reported or sent upstream.
+Why each patch exists, how to check it, and what to look at when a new upstream
+release appears:
+[PATCHES.md](https://github.com/Khame/void-packages/blob/main/srcpkgs/asusctl/PATCHES.md).
+I have not sent anything upstream.
 
 ## Requirements
 
-- **Kernel:** 6.19 or newer (for `asus-armoury` driver support)
-- **Architecture:** `x86_64`
-- **Init:** runit (systemd is not supported)
+Kernel 6.19 or newer for the `asus-armoury` driver, x86_64, runit. systemd is
+not supported.
 
 ## Tested on
 
-- **ASUS ROG Strix G513QM** — AMD Ryzen 9 5900HX, hybrid graphics (Radeon Vega iGPU + NVIDIA GeForce RTX 3060 Mobile / Max-Q), 16 GB RAM; Void Linux `x86_64` (glibc), kernel 7.3, XBPS 0.60.7, runit, KDE Plasma 6.7.5 on Wayland. `asusd`, `asusctl` and `rog-control-center` are in daily use.
-- **Clean Void `x86_64` LXC container** — installation from the signed repository, RSA signature verification and the installed file layout. It has no ASUS WMI device, so `asusd` exits with `MissingFunction("asus-nb-wmi not found")`; that is expected and not a packaging defect.
+ASUS ROG Strix G513QM: Ryzen 9 5900HX, Radeon Vega plus RTX 3060 Mobile, 16 GB
+RAM. Void x86_64 with glibc, kernel 7.3, XBPS 0.60.7, runit, Plasma 6.7.5 on
+Wayland. `asusd`, `asusctl` and `rog-control-center` run here every day.
 
-Only `x86_64` with glibc is built and published; musl is untested.
+I also installed it in a clean Void x86_64 LXC container to check the
+repository, the signature and the file layout. A container has no ASUS WMI
+device, so `asusd` exits with `MissingFunction("asus-nb-wmi not found")`. That
+is expected.
+
+musl is untested.
 
 ## Repository layout
 
-- `README.md` — installation and usage (this file)
-- `VOID_PACKAGING.md` — maintainer guide: template layout, build and release procedure
-- `LICENSE` — MIT for the material authored in this repository
+- `README.md`: this file
+- `VOID_PACKAGING.md`: how the template is put together, how a release is built
+- `LICENSE`: MIT for what I wrote here
 
-Build files are not duplicated here; `srcpkgs/asusctl/` in [`Khame/void-packages`](https://github.com/Khame/void-packages) is the single source of truth.
+The build files are not copied here. The single copy is
+[`srcpkgs/asusctl/`](https://github.com/Khame/void-packages/tree/main/srcpkgs/asusctl).
 
 ## Upstream
 
-- Project: [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
-- Packaged version: `6.5.0.20261024_7` (commit `13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`)
-- Upstream license: MPL-2.0
+Project: [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
+
+Packaged version: `6.5.0.20261024_8`, commit
+`13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`
+
+License: MPL-2.0
 
 ## Author
 
-- **Khame** — [@Khame](https://github.com/Khame)
+Khame ([@Khame](https://github.com/Khame)),
+[khame.dev@protonmail.com](mailto:khame.dev@protonmail.com)
