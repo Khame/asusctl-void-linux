@@ -15,6 +15,9 @@ Users should read [README.md](README.md) instead.
 | `srcpkgs/asusctl/files/asusd-log/run` | `svlogd` logger for `/var/log/asusd` |
 | `srcpkgs/asusctl/files/xdg-autostart/asusd-user.desktop` | starts `asusd-user` with the session |
 | `srcpkgs/asusctl/files/plasmoid/` | the Plasma widget |
+| `srcpkgs/asusctl-plasma` | symlink to the template for the optional Plasma subpackage |
+| `srcpkgs/asusctl/REMOVE` | stops package processes before removal |
+| `srcpkgs/asusctl/REMOVE.msg` | explains the remaining administrator service link |
 | `docs/` | signed packages, `x86_64-repodata`, the public key and the landing page |
 
 ## About the template
@@ -24,14 +27,19 @@ Users should read [README.md](README.md) instead.
 Upstream `make install` is not used. It installs systemd units, so `do_install`
 places every file by hand.
 
-The version is a git snapshot: `version=6.5.0.20261024` and
-`_commit=13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`. `distfiles` uses
+The version is a git snapshot: `version=6.5.0.20261031` and
+`_commit=f537fcac69284f69d0ff1ab2f1cd720476e006de`. `distfiles` uses
 `${_commit}` and there is no `wrksrc`; `xbps-src` renames the extracted
 directory by itself.
 
 `data/asusd.rules` is not installed. It only sets `TAG+="systemd"` and
 `ENV{SYSTEMD_WANTS}+="asusd.service asus-shutdown.service"`, both of which
 eudev ignores. runit starts `asusd`.
+
+`REMOVE` stops the asusd service, its logger and the session processes before
+the package files are removed. It does not remove `/var/service/asusd`, because
+that link is created and owned by the administrator. `REMOVE.msg` explains how
+to remove the link manually.
 
 `asus-shutdown` is not installed either. It waits for a `PrepareForShutdown`
 signal from logind and then calls `systemctl`. Void's `/usr/bin/shutdown` never
@@ -42,9 +50,8 @@ from `files/`. The logger creates `/var/log/asusd` itself, because empty
 directories do not survive package creation. The `supervise` symlinks are made
 by `runsv` at runtime and are not shipped.
 
-The Plasma widget is part of the main package. Its runtime requirements are in
-`srcpkgs/asusctl/INSTALL.msg`, not in `optdepends`. `xbps-src` has no
-`optdepends` variable and ignores it without a warning.
+The Plasma widget is in the optional `asusctl-plasma` subpackage. Its runtime
+dependencies are declared by that subpackage rather than hidden in a message.
 
 Build dependencies are `pkg-config rust cargo clang cmake gettext git`,
 `eudev-libudev-devel dbus-devel pcre2-devel libxkbcommon-devel libzstd-devel`

@@ -41,7 +41,7 @@ Updates come with `sudo xbps-install -Su`. Only x86_64 is built.
 Import the key first, then:
 
 ```sh
-sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261024_9.x86_64.xbps
+sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261031_10.x86_64.xbps
 ```
 
 This is for one install. Updates are manual. The release also has the `.sig2`
@@ -83,22 +83,22 @@ Skip the symlink if `/var/service/asusd` already exists. The package creates
 
 `asusd` as a runit service with logs in `/var/log/asusd`, the `asusctl`,
 `asusd-user` and `rog-control-center` binaries, the D-Bus policy, keyboard
-layouts, notification icons, and the Plasma widget
-`org.voidlinux.plasma.asusctl`.
+layouts and notification icons. The optional `asusctl-plasma` subpackage
+provides the Plasma widget `org.voidlinux.plasma.asusctl`.
 
 The widget covers Aura lighting, the battery charge limit and switching the
-keyboard and Aura off. It needs Plasma 6; `INSTALL.msg` lists
-`plasma-workspace`, `kf6-kirigami` and `plasma5support`. Without KDE the daemon
-and the CLI work on their own, so GNOME, XFCE, sway and a plain console are
-fine.
+keyboard and Aura off. It needs Plasma 6 and is installed separately. Without
+KDE the daemon and the CLI work on their own, so GNOME, XFCE, sway and a plain
+console are fine.
 
 Upstream's `asus-shutdown` helper and its udev rule are left out. Both expect
 systemd and do nothing here.
 
 ## Patches
 
-Revision 9 carries six patches on top of upstream `13cdaa9`. I needed all of
-them on this laptop.
+Revision 10 carries six patches on top of upstream
+`f537fcac69284f69d0ff1ab2f1cd720476e006de`. I needed all of them on this
+laptop.
 
 1. Upstream never registers the Aura logind `PrepareForSleep` handler, so the
    keyboard stayed dark after suspend and hibernate. The patch registers it.
@@ -159,8 +159,8 @@ The build files are not copied here. The single copy is
 
 Project: [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
 
-Packaged version: `6.5.0.20261024_9`, commit
-`13cdaa9ccbc0b519d3c888c1c9d97e00faf91cf9`
+Packaged version: `6.5.0.20261031_10`, commit
+`f537fcac69284f69d0ff1ab2f1cd720476e006de`
 
 License: MPL-2.0
 
