@@ -41,7 +41,7 @@ Updates come with `sudo xbps-install -Su`. Only x86_64 is built.
 Import the key first, then:
 
 ```sh
-sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261031_10.x86_64.xbps
+sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261031_11.x86_64.xbps
 ```
 
 This is for one install. Updates are manual. The release also has the `.sig2`
@@ -159,7 +159,7 @@ The build files are not copied here. The single copy is
 
 Project: [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
 
-Packaged version: `6.5.0.20261031_10`, commit
+Packaged version: `6.5.0.20261031_11`, commit
 `f537fcac69284f69d0ff1ab2f1cd720476e006de`
 
 License: MPL-2.0
