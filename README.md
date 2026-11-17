@@ -87,6 +87,14 @@ Skip the symlink if `/var/service/asusd` already exists. The package creates
 `/var/log/asusd` for the bundled `svlogd`, and an XDG autostart entry starts
 `asusd-user` with the desktop session.
 
+The `REMOVE` script stops `asusd` and its logger during an upgrade. Start them
+again after the new package is installed:
+
+```sh
+sudo sv up asusd/log
+sudo sv up asusd
+```
+
 ## What gets installed
 
 `asusd` as a runit service with logs in `/var/log/asusd`, the `asusctl`,
