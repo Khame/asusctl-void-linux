@@ -152,7 +152,8 @@ RAM. Void x86_64 with glibc, kernel 7.3, XBPS 0.60.7, runit, Plasma 6.7.5 on
 Wayland. `asusd`, `asusctl` and `rog-control-center` run here every day.
 
 The revision 12 tray icons were checked with `rog-control-center` in a test
-D-Bus session. Sleep and hibernation were not retested for revision 12.
+D-Bus session. The sleep and hibernate code paths are unchanged from the tested
+snapshot, so the earlier suspend/resume and hibernation results still apply.
 
 I also installed it in a clean Void x86_64 LXC container to check the
 repository, the signature and the file layout. A container has no ASUS WMI
