@@ -49,7 +49,7 @@ Updates come with `sudo xbps-install -Su`. Only x86_64 is built.
 Import the key first, then:
 
 ```sh
-sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261031_11.x86_64.xbps
+sudo xbps-install --binary-package-url https://github.com/Khame/asusctl-void-linux/releases/download/v6.5.0/asusctl-6.5.0.20261116_12.x86_64.xbps
 ```
 
 This is for one install. Updates are manual. The release also has the `.sig2`
@@ -91,8 +91,9 @@ Skip the symlink if `/var/service/asusd` already exists. The package creates
 
 `asusd` as a runit service with logs in `/var/log/asusd`, the `asusctl`,
 `asusd-user` and `rog-control-center` binaries, the D-Bus policy, keyboard
-layouts and notification icons. The optional `asusctl-plasma` subpackage
-provides the Plasma widget `org.voidlinux.plasma.asusctl`.
+layouts, notification icons and scalable tray icons. The optional
+`asusctl-plasma` subpackage provides the Plasma widget
+`org.voidlinux.plasma.asusctl`.
 
 The widget covers Aura lighting, the battery charge limit and switching the
 keyboard and Aura off. It needs Plasma 6 and is installed separately. Without
@@ -104,8 +105,8 @@ systemd and do nothing here.
 
 ## Patches
 
-Revision 10 carries six patches on top of upstream
-`f537fcac69284f69d0ff1ab2f1cd720476e006de`. I needed all of them on this
+Revision 12 carries seven patches on top of upstream
+`5346e184d09c5ed46e5dd16cdecedb7608393502`. I needed all of them on this
 laptop.
 
 1. Upstream never registers the Aura logind `PrepareForSleep` handler, so the
@@ -125,6 +126,9 @@ laptop.
 6. elogind can send `PrepareForSleep(false)` more than once for one wake. The
    handler ran twice and reloaded the keyboard twice. The patch ignores an
    identical signal received within two seconds.
+7. The tray icon was a 512 px PNG that the panel scaled down, so the ROG mark
+   looked soft at 22 px and on HiDPI. The patch switches to `IconName` and
+   three scalable SVGs that keep the GPU state colors.
 
 Revision 7 fixed the packaging side: layouts go to
 `/usr/share/rog-gui/layouts/` where `asusd-user` looks for them,
@@ -147,6 +151,9 @@ ASUS ROG Strix G513QM: Ryzen 9 5900HX, Radeon Vega plus RTX 3060 Mobile, 16 GB
 RAM. Void x86_64 with glibc, kernel 7.3, XBPS 0.60.7, runit, Plasma 6.7.5 on
 Wayland. `asusd`, `asusctl` and `rog-control-center` run here every day.
 
+The revision 12 tray icons were checked with `rog-control-center` in a test
+D-Bus session. Sleep and hibernation were not retested for revision 12.
+
 I also installed it in a clean Void x86_64 LXC container to check the
 repository, the signature and the file layout. A container has no ASUS WMI
 device, so `asusd` exits with `MissingFunction("asus-nb-wmi not found")`. That
@@ -167,8 +174,8 @@ The build files are not copied here. The single copy is
 
 Project: [OpenGamingCollective/asusctl](https://github.com/OpenGamingCollective/asusctl)
 
-Packaged version: `6.5.0.20261031_11`, commit
-`f537fcac69284f69d0ff1ab2f1cd720476e006de`
+Packaged version: `6.5.0.20261116_12`, commit
+`5346e184d09c5ed46e5dd16cdecedb7608393502`
 
 License: MPL-2.0
 
